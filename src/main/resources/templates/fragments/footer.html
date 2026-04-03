@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="footer">
+    <footer style="background: linear-gradient(180deg, #1d1d1d, #111); color: #fff;"
+            class="mt-5 pt-5 pb-4">
+        <div class="container">
+            <div class="row gy-4">
+
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div style="font-size:32px;">🧸</div>
+                        <div>
+                            <h5 class="mb-0 fw-bold">Kids Fashion</h5>
+                            <small style="color:#c9c9c9;">Thời trang cho bé yêu</small>
+                        </div>
+                    </div>
+                    <p style="color:#cfcfcf; line-height:1.7;">
+                        Mang đến những mẫu quần áo trẻ em dễ thương, thoải mái và hiện đại
+                        cho bé trong mọi khoảnh khắc hằng ngày.
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3">Liên kết nhanh</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2">
+                        <li><a href="/" class="text-decoration-none" style="color:#d8d8d8;">Trang chủ</a></li>
+                        <li><a href="/products" class="text-decoration-none" style="color:#d8d8d8;">Sản phẩm</a></li>
+                        <li><a href="/cart" class="text-decoration-none" style="color:#d8d8d8;">Giỏ hàng</a></li>
+                        <li><a href="/orders" class="text-decoration-none" style="color:#d8d8d8;">Đơn hàng</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3">Liên hệ</h6>
+                    <p class="mb-2" style="color:#d8d8d8;">📍 TP. Hồ Chí Minh</p>
+                    <p class="mb-2" style="color:#d8d8d8;">📞 0123 456 789</p>
+                    <p class="mb-0" style="color:#d8d8d8;">✉️ support@kidsfashion.com</p>
+                </div>
+
+            </div>
+
+            <hr style="border-color: rgba(255,255,255,0.12);" class="my-4">
+
+            <div class="text-center" style="color:#c7c7c7;">
+                © 2026 Kids Fashion. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>

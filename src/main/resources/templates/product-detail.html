@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f7f7fb;
+        }
+
+        .detail-card {
+            border: none;
+            border-radius: 26px;
+            background: #fff;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.06);
+        }
+
+        .detail-image {
+            width: 100%;
+            max-height: 560px;
+            object-fit: cover;
+            border-radius: 22px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+        }
+
+        .detail-title {
+            font-size: 46px;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .detail-price {
+            color: #ef4444;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .soft-tag {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: #fff2eb;
+            color: #ff6b57;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+<body style="padding-top:95px;">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="detail-card p-4 p-md-5">
+        <div class="row g-4 align-items-start">
+
+            <div class="col-md-6">
+                <img th:src="${product.image != null and !#strings.isEmpty(product.image) ? product.image : 'https://via.placeholder.com/500'}"
+                     class="detail-image"
+                     alt="Ảnh sản phẩm">
+            </div>
+
+            <div class="col-md-6">
+                <div class="soft-tag">Sản phẩm nổi bật</div>
+                <div class="detail-title mb-3" th:text="${product.name}"></div>
+
+                <div class="detail-price mb-4"
+                     th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-3">Mô tả sản phẩm</h5>
+                    <p class="text-muted fs-6 lh-lg"
+                       th:text="${product.description != null and !#strings.isEmpty(product.description) ? product.description : 'Chưa có mô tả cho sản phẩm này.'}">
+                    </p>
+                </div>
+
+                <form th:action="@{'/cart/add/' + ${product.id}}" method="post">
+                    <button class="btn btn-primary btn-lg rounded-pill px-4">
+                        Thêm vào giỏ
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
