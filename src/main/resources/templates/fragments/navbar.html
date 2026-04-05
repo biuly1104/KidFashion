@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg fixed-top shadow-sm"
+         style="background: rgba(17, 17, 17, 0.95); backdrop-filter: blur(10px);">
+        <div class="container">
+
+            <!-- BRAND ICON -->
+            <a class="navbar-brand d-flex align-items-center justify-content-center"
+               href="/"
+               title="KidsFashion"
+               style="width:50px;height:50px;
+                      font-size: 30px;
+                      text-decoration:none;">
+                🧸
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <div class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+
+                    <a class="nav-link px-3 fw-semibold"
+                       th:classappend="${activePage == 'home'} ? ' text-warning' : ' text-white'"
+                       href="/">Trang chủ</a>
+
+                    <a class="nav-link px-3 fw-semibold"
+                       th:classappend="${activePage == 'products'} ? ' text-warning' : ' text-white'"
+                       href="/products">Sản phẩm</a>
+
+                    <!-- CART -->
+                    <a class="nav-link position-relative px-3 text-white fw-semibold" href="/cart" title="Giỏ hàng">
+                        <span style="font-size:22px;">🛒</span>
+
+                        <span th:if="${session.cart != null and #aggregates.sum(session.cart.items.values()) > 0}"
+                              th:text="${#aggregates.sum(session.cart.items.values())}"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              style="font-size: 11px; min-width: 22px;">
+                        </span>
+                    </a>
+
+                    <!-- USER -->
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle px-3 text-white fw-semibold d-flex align-items-center gap-2"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <span style="font-size:20px;">👤</span>
+                            <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+                            <span sec:authorize="isAnonymous()">Tài khoản</span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2"
+                            style="min-width: 240px;">
+
+                            <li sec:authorize="isAnonymous()">
+                                <a class="dropdown-item rounded-3 py-2" href="/login">Đăng nhập</a>
+                            </li>
+
+                            <li sec:authorize="isAnonymous()">
+                                <a class="dropdown-item rounded-3 py-2" href="/register">Đăng ký</a>
+                            </li>
+
+                            <li sec:authorize="isAuthenticated()">
+                                <a class="dropdown-item rounded-3 py-2" href="/account">Tài khoản</a>
+                            </li>
+
+                            <li sec:authorize="isAuthenticated()">
+                                <a class="dropdown-item rounded-3 py-2" href="/orders">Đơn hàng</a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-3 py-2" href="/admin/dashboard">Dashboard</a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-3 py-2" href="/products/add">Thêm sản phẩm</a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-3 py-2" href="/admin/categories">Quản lý danh mục</a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-3 py-2" href="/admin/discounts">Quản lý mã giảm giá</a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-3 py-2" href="/admin/orders">Quản lý đơn hàng</a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item rounded-3 py-2" href="/admin/users">Quản lý người mua</a>
+                            </li>
+
+                            <li sec:authorize="isAuthenticated()"><hr class="dropdown-divider"></li>
+
+                            <li sec:authorize="isAuthenticated()">
+                                <a class="dropdown-item rounded-3 py-2 text-danger" href="/logout">Đăng xuất</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </nav>
+</div>
+
+</body>
+</html>
