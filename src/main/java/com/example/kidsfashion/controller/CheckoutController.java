@@ -8,7 +8,7 @@ import com.example.kidsfashion.repository.UserRepository;
 import com.example.kidsfashion.service.DiscountService;
 import com.example.kidsfashion.service.OrderService;
 import com.example.kidsfashion.service.ProductService;
-import com.example.kidsfashion.service.VnPayService;
+import com.example.kidsfashion.service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class CheckoutController {
     private UserRepository userRepository;
 
     @Autowired
-    private VnPayService vnPayService;
+    private VNPayService vnPayService;
 
     @GetMapping
     public String checkout(HttpSession session, Model model) {
@@ -53,7 +53,6 @@ public class CheckoutController {
 
         for (Map.Entry<Long, Integer> entry : cart.getItems().entrySet()) {
             Product product = productService.getById(entry.getKey());
-
             if (product != null) {
                 cartItems.put(product, entry.getValue());
                 total += product.getPrice() * entry.getValue();
@@ -93,7 +92,6 @@ public class CheckoutController {
 
         for (Map.Entry<Long, Integer> entry : cart.getItems().entrySet()) {
             Product product = productService.getById(entry.getKey());
-
             if (product != null) {
                 cartItems.put(product, entry.getValue());
                 total += product.getPrice() * entry.getValue();
@@ -172,10 +170,12 @@ public class CheckoutController {
         }
 
         try {
-            // Thanh toán online qua VNPAY
             if ("BANK".equalsIgnoreCase(payment)) {
-
-                String paymentUrl = vnPayService.createPaymentUrl(finalTotal, request);
+                String paymentUrl = vnPayService.createPaymentUrl(
+                        request,
+                        Math.round(finalTotal),
+                        "Thanh toan don hang KidFashion"
+                );
 
                 session.setAttribute("pendingOrder_user", user);
                 session.setAttribute("pendingOrder_cart", cart);
@@ -188,7 +188,6 @@ public class CheckoutController {
                 return "redirect:" + paymentUrl;
             }
 
-            // COD
             orderService.createOrder(user, cart, name, phone, address, payment, discountCode);
 
             session.removeAttribute("cart");
@@ -204,6 +203,59 @@ public class CheckoutController {
             e.printStackTrace();
             model.addAttribute("error", "Có lỗi xảy ra khi đặt hàng: " + e.getMessage());
             return "redirect:/checkout";
+        }
+    }
+
+    @GetMapping("/vnpay-return")
+    public String vnpayReturn(HttpServletRequest request,
+                              HttpSession session,
+                              Model model) {
+        try {
+            Map<String, String> fields = new HashMap<>();
+            request.getParameterMap().forEach((key, value) -> fields.put(key, value[0]));
+
+            boolean validSignature = vnPayService.verifyReturnUrl(new HashMap<>(fields));
+            String responseCode = request.getParameter("vnp_ResponseCode");
+
+            if (validSignature && "00".equals(responseCode)) {
+                User user = (User) session.getAttribute("pendingOrder_user");
+                Cart cart = (Cart) session.getAttribute("pendingOrder_cart");
+                String name = (String) session.getAttribute("pendingOrder_name");
+                String phone = (String) session.getAttribute("pendingOrder_phone");
+                String address = (String) session.getAttribute("pendingOrder_address");
+                String payment = (String) session.getAttribute("pendingOrder_payment");
+                String discountCode = (String) session.getAttribute("pendingOrder_discountCode");
+
+                if (user != null && cart != null) {
+                    orderService.createOrder(user, cart, name, phone, address, payment, discountCode);
+                }
+
+                session.removeAttribute("cart");
+                session.removeAttribute("discountCode");
+
+                session.removeAttribute("pendingOrder_user");
+                session.removeAttribute("pendingOrder_cart");
+                session.removeAttribute("pendingOrder_name");
+                session.removeAttribute("pendingOrder_phone");
+                session.removeAttribute("pendingOrder_address");
+                session.removeAttribute("pendingOrder_payment");
+                session.removeAttribute("pendingOrder_discountCode");
+
+                model.addAttribute("name", name);
+                model.addAttribute("payment", "BANK");
+                model.addAttribute("message", "Thanh toán thành công!");
+                model.addAttribute("activePage", "user");
+
+                return "success";
+            } else {
+                model.addAttribute("error", "Thanh toán thất bại hoặc chữ ký không hợp lệ!");
+                return "payment-result";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Có lỗi xảy ra khi xử lý kết quả thanh toán: " + e.getMessage());
+            return "payment-result";
         }
     }
 }

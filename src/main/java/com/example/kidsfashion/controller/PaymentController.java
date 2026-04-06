@@ -1,47 +1,47 @@
 package com.example.kidsfashion.controller;
 
-import com.example.kidsfashion.model.Cart;
-import com.example.kidsfashion.model.User;
-import com.example.kidsfashion.service.OrderService;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.kidsfashion.service.VNPayService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
+@RequestMapping("/payment")
 public class PaymentController {
 
-    @Autowired
-    private OrderService orderService;
+    private final VNPayService vnPayService;
 
-    @GetMapping("/payment/vnpay-return")
-    public String paymentReturn(HttpSession session) {
+    public PaymentController(VNPayService vnPayService) {
+        this.vnPayService = vnPayService;
+    }
 
-        String responseCode = (String) session.getAttribute("vnp_ResponseCode");
+    @GetMapping("/create")
+    public RedirectView createPayment(HttpServletRequest request,
+                                      @RequestParam("amount") long amount) throws Exception {
+        String paymentUrl = vnPayService.createPaymentUrl(request, amount, "Thanh toan don hang KidFashion");
+        return new RedirectView(paymentUrl);
+    }
 
-        if ("00".equals(responseCode)) {
+    @GetMapping("/vnpay-return")
+    public String vnpayReturn(HttpServletRequest request, Map<String, Object> model) throws Exception {
+        Map<String, String> fields = new HashMap<>();
+        request.getParameterMap().forEach((key, value) -> fields.put(key, value[0]));
 
-            User user = (User) session.getAttribute("pendingOrder_user");
-            Cart cart = (Cart) session.getAttribute("pendingOrder_cart");
+        boolean validSignature = vnPayService.verifyReturnUrl(new HashMap<>(fields));
+        String responseCode = request.getParameter("vnp_ResponseCode");
 
-            String[] info = (String[]) session.getAttribute("pendingOrder_info");
-
-            orderService.createOrder(
-                    user,
-                    cart,
-                    info[0],
-                    info[1],
-                    info[2],
-                    info[3],
-                    info[4]
-            );
-
-            session.removeAttribute("cart");
-            session.removeAttribute("discountCode");
-
-            return "success";
+        if (validSignature && "00".equals(responseCode)) {
+            model.put("message", "Thanh toán thành công");
+        } else {
+            model.put("message", "Thanh toán thất bại");
         }
 
-        return "fail";
+        return "payment-result";
     }
 }
